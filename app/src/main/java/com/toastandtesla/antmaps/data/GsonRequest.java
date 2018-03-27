@@ -1,4 +1,4 @@
-package com.toastandtesla.antmaps;
+package com.toastandtesla.antmaps.data;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * <p>Code taken from https://developer.android.com/training/volley/request-custom.html
  */
-public class GsonRequest<T> extends Request<T> {
+final class GsonRequest<T> extends Request<T> {
   private final Gson gson = new Gson();
   private final Class<T> clazz;
   private final Map<String, String> headers;

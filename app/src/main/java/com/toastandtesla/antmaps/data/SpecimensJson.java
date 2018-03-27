@@ -1,4 +1,4 @@
-package com.toastandtesla.antmaps;
+package com.toastandtesla.antmaps.data;
 
 /**
  * An object representing the JSON response from:

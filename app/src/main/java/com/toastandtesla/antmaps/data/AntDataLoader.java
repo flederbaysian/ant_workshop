@@ -1,4 +1,4 @@
-package com.toastandtesla.antmaps;
+package com.toastandtesla.antmaps.data;
 
 import android.content.Context;
 import android.net.Uri;
@@ -26,10 +26,12 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
   private static final String TAG = "AntDataLoader";
 
   private final RequestQueue requestQueue;
+  private final int maximumSpecies;
 
-  public AntDataLoader(Context context, RequestQueue requestQueue) {
+  public AntDataLoader(Context context, RequestQueue requestQueue, int maximumSpecies) {
     super(context);
     this.requestQueue = requestQueue;
+    this.maximumSpecies = maximumSpecies;
   }
 
   @Override
@@ -38,7 +40,7 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
     if (specimensJson == null) {
       return ImmutableList.of();
     }
-    Set<String> taxonNames = getTaxonNames(specimensJson, 10);
+    Set<String> taxonNames = getTaxonNames(specimensJson, maximumSpecies);
     return getAntSpecies(taxonNames);
   }
 

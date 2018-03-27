@@ -1,10 +1,13 @@
-package com.toastandtesla.antmaps;
+package com.toastandtesla.antmaps.data;
 
 import android.net.Uri;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A simple data object with information about an ant species.
  */
+@Immutable
 public final class AntSpecies {
   public final String name;
   public final Uri imageUrl;
