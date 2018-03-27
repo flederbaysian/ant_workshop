@@ -40,13 +40,14 @@ public class NearbyAntsActivity extends AppCompatActivity {
     loader.forceLoad();
   }
 
-  private class AntDataLoaderCallbacks
+  private final class AntDataLoaderCallbacks
       implements LoaderManager.LoaderCallbacks<ImmutableList<AntSpecies>> {
     @Override
     public Loader<ImmutableList<AntSpecies>> onCreateLoader(int id, Bundle args) {
       NearbyAntsActivity context = NearbyAntsActivity.this;
-      int maximumSpecies = 10;
-      return new AntDataLoader(context, Volley.newRequestQueue(context), maximumSpecies);
+      AntDataLoader.Parameters parameters = new AntDataLoader.Parameters();
+      parameters.maxSpecies = 12;
+      return new AntDataLoader(context, Volley.newRequestQueue(context), parameters);
     }
 
     @Override

@@ -26,12 +26,15 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
   private static final String TAG = "AntDataLoader";
 
   private final RequestQueue requestQueue;
-  private final int maximumSpecies;
+  private final Parameters parameters;
 
-  public AntDataLoader(Context context, RequestQueue requestQueue, int maximumSpecies) {
+  public AntDataLoader(
+      Context context,
+      RequestQueue requestQueue,
+      Parameters parameters) {
     super(context);
     this.requestQueue = requestQueue;
-    this.maximumSpecies = maximumSpecies;
+    this.parameters = Parameters.copy(parameters);
   }
 
   @Override
@@ -40,12 +43,12 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
     if (specimensJson == null) {
       return ImmutableList.of();
     }
-    Set<String> taxonNames = getTaxonNames(specimensJson, maximumSpecies);
+    Set<String> taxonNames = getTaxonNames(specimensJson, parameters.maxSpecies);
     return getAntSpecies(taxonNames);
   }
 
   private SpecimensJson getSpecimensJson() {
-    String url = "http://api.antweb.org/v3/geoSpecimens?coords=52,%200&limit=100&radius=2&dateMin=2017-03-01&dateMax=2018-03-25";
+    String url = specimensUrl();
     RequestFuture<SpecimensJson> future = RequestFuture.newFuture();
     GsonRequest<SpecimensJson> request = new GsonRequest<>(
         url,
@@ -62,6 +65,18 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
       Log.w(TAG, "Loading speciment JSON failed", e);
       return null;
     }
+  }
+
+  private String specimensUrl() {
+    return String.format(
+        "http://api.antweb.org/v3/"
+            + "geoSpecimens?coords=%s,%s"
+            + "&limit=100"
+            + "&radius=%s"
+            + "&dateMin=2017-03-01&dateMax=2018-03-25",
+        (int) parameters.latitude,
+        (int) parameters.longitude,
+        parameters.radiusKm);
   }
 
   private Set<String> getTaxonNames(SpecimensJson specimens, int maxSize) {
@@ -105,5 +120,21 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
       }
     }
     return resultBuilder.build();
+  }
+
+  public static final class Parameters {
+    public int maxSpecies = 10;
+    public float latitude = 52;
+    public float longitude = 0;
+    public int radiusKm = 2;
+
+    static Parameters copy(Parameters parameters) {
+      Parameters result = new Parameters();
+      result.maxSpecies = parameters.maxSpecies;
+      result.latitude = parameters.latitude;
+      result.longitude = parameters.longitude;
+      result.radiusKm = parameters.radiusKm;
+      return result;
+    }
   }
 }
