@@ -14,7 +14,7 @@ import com.toastandtesla.antmaps.data.AntDataLoader;
 import com.toastandtesla.antmaps.data.AntSpecies;
 
 /** An activity which presents a list of nearby ant species. */
-public class NearbyAntsActivity extends AppCompatActivity {
+public final class NearbyAntsActivity extends AppCompatActivity {
 
   private final AntDataLoaderCallbacks loaderCallbacks = new AntDataLoaderCallbacks();
   private AntListAdapter antListAdapter;
@@ -44,6 +44,7 @@ public class NearbyAntsActivity extends AppCompatActivity {
       NearbyAntsActivity context = NearbyAntsActivity.this;
       AntDataLoader.Parameters parameters = new AntDataLoader.Parameters();
       parameters.maxSpecies = 12;
+      parameters.radiusKm = 100;
       return new AntDataLoader(context, Volley.newRequestQueue(context), parameters);
     }
 

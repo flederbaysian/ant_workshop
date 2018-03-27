@@ -1,6 +1,7 @@
 package com.toastandtesla.antmaps;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +13,8 @@ import com.squareup.picasso.Picasso;
 import com.toastandtesla.antmaps.data.AntSpecies;
 
 /**
- * A RecyclerView adapter that can display a list of ant species. Each will have a picture and
- * a label.
+ * A RecyclerView adapter that can display a list of ant species. Each will have a picture and a
+ * label.
  */
 final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHolder> {
   static final class AntViewHolder extends RecyclerView.ViewHolder {
@@ -34,8 +35,8 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
 
   @Override
   public AntViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    View view = LayoutInflater.from(parent.getContext())
-        .inflate(R.layout.ant_species_view, parent, false);
+    View view =
+        LayoutInflater.from(parent.getContext()).inflate(R.layout.ant_species_view, parent, false);
     AntViewHolder holder = new AntViewHolder(view);
     holder.imageView = view.findViewById(R.id.imageView);
     holder.nameView = view.findViewById(R.id.nameView);
@@ -46,7 +47,9 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
   public void onBindViewHolder(AntViewHolder holder, int position) {
     AntSpecies species = antSpecies.get(position);
     holder.nameView.setText(species.name);
-    picasso.load(species.imageUrl).into(holder.imageView);
+    picasso.load(species.imageUrl)
+        .placeholder(R.drawable.placeholder_drawable)
+        .into(holder.imageView);
   }
 
   public void onViewRecycled(AntViewHolder holder) {
