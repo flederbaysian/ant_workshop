@@ -18,8 +18,7 @@ import com.toastandtesla.antmaps.data.AntSpecies;
  */
 public class NearbyAntsActivity extends AppCompatActivity {
 
-  private final LoaderManager.LoaderCallbacks<ImmutableList<AntSpecies>> loaderCallbacks =
-      new AntDataLoaderCallbacks();
+  private final AntDataLoaderCallbacks loaderCallbacks = new AntDataLoaderCallbacks();
   private AntListAdapter antListAdapter;
 
   @Override

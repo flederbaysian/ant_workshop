@@ -46,8 +46,7 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
   public void onBindViewHolder(AntViewHolder holder, int position) {
     AntSpecies species = antSpecies.get(position);
     holder.nameView.setText(species.name);
-    picasso.load(species.imageUrl)
-        .into(holder.imageView);
+    picasso.load(species.imageUrl).into(holder.imageView);
   }
 
   public void onViewRecycled(AntViewHolder holder) {
