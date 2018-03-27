@@ -40,6 +40,7 @@ final class TaxaImagesJson {
 
     private static class SpecimenJson {
       Images[] images;
+
       private static class Images {
         @SerializedName("urls:")
         private String[] urls;

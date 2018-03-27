@@ -13,9 +13,7 @@ import com.squareup.picasso.Picasso;
 import com.toastandtesla.antmaps.data.AntDataLoader;
 import com.toastandtesla.antmaps.data.AntSpecies;
 
-/**
- * An activity which presents a list of nearby ant species.
- */
+/** An activity which presents a list of nearby ant species. */
 public class NearbyAntsActivity extends AppCompatActivity {
 
   private final AntDataLoaderCallbacks loaderCallbacks = new AntDataLoaderCallbacks();
@@ -56,7 +54,6 @@ public class NearbyAntsActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onLoaderReset(Loader<ImmutableList<AntSpecies>> loader) {
-    }
+    public void onLoaderReset(Loader<ImmutableList<AntSpecies>> loader) {}
   }
 }
