@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A loader which uses the AntWeb API to download a list of nearby ant species, each with
@@ -52,9 +53,11 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
     requestQueue.add(request);
 
     try {
-      return Futures.getChecked(future, Exception.class);
-    } catch (Exception e) {
-      Log.w(TAG, "Failed to load nearby specimen", e);
+      return future.get();
+    } catch (InterruptedException e) {
+      return null;
+    } catch (ExecutionException e) {
+      Log.w(TAG, "Loading speciment JSON failed", e);
       return null;
     }
   }
@@ -84,9 +87,10 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
     }
     List<TaxaImagesJson> imagesJsonList;
     try {
-      imagesJsonList = Futures.getChecked(
-          Futures.allAsList(futuresBuilder.build()), Exception.class);
-    } catch (Exception e) {
+      imagesJsonList = Futures.allAsList(futuresBuilder.build()).get();
+    } catch (InterruptedException e) {
+      return ImmutableList.of();
+    } catch (ExecutionException e) {
       Log.w(TAG, "Failed to load taxa image URLs", e);
       return ImmutableList.of();
     }
