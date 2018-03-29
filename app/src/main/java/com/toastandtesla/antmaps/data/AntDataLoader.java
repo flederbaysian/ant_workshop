@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.toastandtesla.antmaps.R;
 
 import java.net.URLEncoder;
 import java.util.HashSet;
@@ -39,6 +40,9 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
 
   @Override
   public ImmutableList<AntSpecies> loadInBackground() {
+    if (parameters.fakeResults) {
+      return fakeResults();
+    }
     SpecimensJson specimensJson = getSpecimensJson();
     if (specimensJson == null) {
       return ImmutableList.of();
@@ -116,8 +120,16 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
     for (TaxaImagesJson imagesJson : imagesJsonList) {
       Uri imageUrl = imagesJson.getUrl();
       if (imageUrl != null) {
-        resultBuilder.add(new AntSpecies(imagesJson.getTaxonName(), imageUrl));
+        resultBuilder.add(new AntSpecies(imagesJson.getTaxonName(), imageUrl, 0));
       }
+    }
+    return resultBuilder.build();
+  }
+
+  private ImmutableList<AntSpecies> fakeResults() {
+    ImmutableList.Builder<AntSpecies> resultBuilder = ImmutableList.builder();
+    for (int i = 0; i < parameters.maxSpecies; i++) {
+      resultBuilder.add(new AntSpecies("Ant #" + i, null, R.mipmap.ant));
     }
     return resultBuilder.build();
   }
@@ -127,6 +139,7 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
     public float latitude = 52;
     public float longitude = 0;
     public int radiusKm = 2;
+    public boolean fakeResults = false;
 
     static Parameters copy(Parameters parameters) {
       Parameters result = new Parameters();
@@ -134,6 +147,7 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
       result.latitude = parameters.latitude;
       result.longitude = parameters.longitude;
       result.radiusKm = parameters.radiusKm;
+      result.fakeResults = parameters.fakeResults;
       return result;
     }
   }

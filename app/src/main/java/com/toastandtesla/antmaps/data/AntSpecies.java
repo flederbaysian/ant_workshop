@@ -1,7 +1,9 @@
 package com.toastandtesla.antmaps.data;
 
 import android.net.Uri;
+import android.support.annotation.DrawableRes;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -10,11 +12,14 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class AntSpecies {
   public final String name;
-  public final Uri imageUrl;
+  /** Image URI for the species, or null if the image resource should be used intead. */
+  @Nullable public final Uri imageUrl;
+  @DrawableRes public final int imageResourceId;
 
-  public AntSpecies(String name, Uri imageUrl) {
+  public AntSpecies(String name, Uri imageUrl, int imageResourceId) {
     this.name = name;
     this.imageUrl = imageUrl;
+    this.imageResourceId = imageResourceId;
   }
 
   @Override
@@ -24,14 +29,16 @@ public final class AntSpecies {
 
     AntSpecies that = (AntSpecies) o;
 
+    if (imageResourceId != that.imageResourceId) return false;
     if (!name.equals(that.name)) return false;
-    return imageUrl.equals(that.imageUrl);
+    return imageUrl != null ? imageUrl.equals(that.imageUrl) : that.imageUrl == null;
   }
 
   @Override
   public int hashCode() {
     int result = name.hashCode();
-    result = 31 * result + imageUrl.hashCode();
+    result = 31 * result + (imageUrl != null ? imageUrl.hashCode() : 0);
+    result = 31 * result + imageResourceId;
     return result;
   }
 
@@ -39,7 +46,8 @@ public final class AntSpecies {
   public String toString() {
     return "AntSpecies{" +
         "name='" + name + '\'' +
-        ", imageUrls=" + imageUrl +
+        ", imageUrl=" + imageUrl +
+        ", imageResourceId=" + imageResourceId +
         '}';
   }
 }

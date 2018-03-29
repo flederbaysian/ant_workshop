@@ -45,6 +45,7 @@ public final class NearbyAntsActivity extends AppCompatActivity {
       AntDataLoader.Parameters parameters = new AntDataLoader.Parameters();
       parameters.maxSpecies = 12;
       parameters.radiusKm = 100;
+      parameters.fakeResults = true;
       return new AntDataLoader(context, Volley.newRequestQueue(context), parameters);
     }
 
