@@ -2,6 +2,7 @@ package com.toastandtesla.antmaps.data;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
@@ -33,13 +34,24 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
     public int radiusKm = 2;
     public boolean fakeResults = false;
 
-    static Parameters copy(Parameters parameters) {
+    public static Parameters copy(Parameters parameters) {
       Parameters result = new Parameters();
       result.maxSpecies = parameters.maxSpecies;
       result.latitude = parameters.latitude;
       result.longitude = parameters.longitude;
       result.radiusKm = parameters.radiusKm;
       result.fakeResults = parameters.fakeResults;
+      return result;
+    }
+
+    /** Parse a Bundle into a Parameters object. */
+    public static Parameters fromBundle(Bundle bundle) {
+      Parameters result = new Parameters();
+      result.maxSpecies = bundle.getInt("maxSpecies", result.maxSpecies);
+      result.latitude = bundle.getFloat("latitude", result.latitude);
+      result.longitude = bundle.getFloat("longitude", result.longitude);
+      result.radiusKm = bundle.getInt("radiusKm", result.radiusKm);
+      result.fakeResults = bundle.getBoolean("fakeResults", result.fakeResults);
       return result;
     }
   }
