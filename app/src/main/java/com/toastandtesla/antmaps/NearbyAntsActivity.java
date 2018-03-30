@@ -6,8 +6,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-
-import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
 import com.toastandtesla.antmaps.data.AntDataLoader;
 import com.toastandtesla.antmaps.data.AntSpecies;
@@ -51,7 +49,7 @@ public final class NearbyAntsActivity extends AppCompatActivity {
       parameters.longitude = 128;
       parameters.maxSpecies = 12;
       parameters.radiusKm = 100;
-      return new AntDataLoader(context, Volley.newRequestQueue(context), parameters);
+      return new AntDataLoader(context, RequestQueueSingleton.getInstance(context), parameters);
     }
 
     @Override
