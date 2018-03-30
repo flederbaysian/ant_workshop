@@ -9,12 +9,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /** A data object with information about an ant species. */
 @Immutable
-public final class AntSpecies {
+public final class AntImageUrl {
 
   private final String name;
   @Nullable private final Uri imageUrl;
 
-  public AntSpecies(String name, @Nullable Uri imageUrl) {
+  public AntImageUrl(String name, @Nullable Uri imageUrl) {
     this.name = checkNotNull(name);
     this.imageUrl = imageUrl;
   }

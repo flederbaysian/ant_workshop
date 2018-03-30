@@ -7,8 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
-import com.toastandtesla.antmaps.data.AntDataLoader;
-import com.toastandtesla.antmaps.data.AntSpecies;
+import com.toastandtesla.antmaps.data.AntImageUrlLoader;
+import com.toastandtesla.antmaps.data.AntImageUrl;
 
 import java.util.List;
 
@@ -32,32 +32,31 @@ public final class NearbyAntsActivity extends AppCompatActivity {
   }
 
   private void startLoadingAntData() {
-    Loader<List<AntSpecies>> loader =
-        getSupportLoaderManager().initLoader(0, null, loaderCallbacks);
+    Loader<List<AntImageUrl>> loader =
+        getSupportLoaderManager().initLoader(0, getIntent().getExtras(), loaderCallbacks);
     loader.forceLoad();
   }
 
   private final class AntDataLoaderCallbacks
-      implements LoaderManager.LoaderCallbacks<List<AntSpecies>> {
+      implements LoaderManager.LoaderCallbacks<List<AntImageUrl>> {
     @Override
-    public Loader<List<AntSpecies>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<AntImageUrl>> onCreateLoader(int id, Bundle args) {
       NearbyAntsActivity context = NearbyAntsActivity.this;
-      AntDataLoader.Parameters parameters = new AntDataLoader.Parameters();
-
+      AntImageUrlLoader.Parameters parameters = new AntImageUrlLoader.Parameters();
       // Your coordinates - no GPS required! (if you're in OIST)
       parameters.latitude = 26;
       parameters.longitude = 128;
       parameters.maxSpecies = 12;
       parameters.radiusKm = 100;
-      return new AntDataLoader(context, RequestQueueSingleton.getInstance(context), parameters);
+      return new AntImageUrlLoader(context, RequestQueueSingleton.getInstance(context), parameters);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<AntSpecies>> loader, List<AntSpecies> data) {
+    public void onLoadFinished(Loader<List<AntImageUrl>> loader, List<AntImageUrl> data) {
       antListAdapter.setAntSpecies(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<AntSpecies>> loader) {}
+    public void onLoaderReset(Loader<List<AntImageUrl>> loader) {}
   }
 }

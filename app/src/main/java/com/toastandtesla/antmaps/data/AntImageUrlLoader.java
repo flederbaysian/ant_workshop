@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
  * A loader which uses the AntWeb API to download a list of nearby ant species, each with
  * a list of photos.
  */
-public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
+public final class AntImageUrlLoader extends AsyncTaskLoader<List<AntImageUrl>> {
 
   /** An object with parameters that control the loader. */
   public static final class Parameters {
@@ -32,6 +32,14 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
     public float latitude;
     public float longitude;
     public int radiusKm = 2;
+    /**
+     * AntWeb API's "photo type":
+     *   h -> head shot
+     *   d -> dorsal shot
+     *   p -> profile shot
+     *   l -> label
+     */
+    public String photoType = "h";
     public boolean fakeResults = false;
 
     public static Parameters copy(Parameters parameters) {
@@ -40,6 +48,7 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
       result.latitude = parameters.latitude;
       result.longitude = parameters.longitude;
       result.radiusKm = parameters.radiusKm;
+      result.photoType = parameters.photoType;
       result.fakeResults = parameters.fakeResults;
       return result;
     }
@@ -56,12 +65,12 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
     }
   }
 
-  private static final String TAG = "AntDataLoader";
+  private static final String TAG = "AntImageUrlLoader";
 
   private final RequestQueue requestQueue;
   private final Parameters parameters;
 
-  public AntDataLoader(
+  public AntImageUrlLoader(
       Context context,
       RequestQueue requestQueue,
       Parameters parameters) {
@@ -71,7 +80,7 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
   }
 
   @Override
-  public List<AntSpecies> loadInBackground() {
+  public List<AntImageUrl> loadInBackground() {
     if (parameters.fakeResults) {
       return fakeResults();
     }
@@ -82,7 +91,7 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
     Set<String> taxonNames = extractTaxonNames(specimensJson, parameters.maxSpecies);
 
     // EXERCISE: Sort the species by name
-    return fetchAntSpeciesData(taxonNames);
+    return fetchAntImageUrls(taxonNames);
   }
 
   /** Makes a network request to get data about all specimens within the search radius. */
@@ -137,10 +146,13 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
    * species will be in the same order as passed into this method, but only species where an image
    * was found will be returned.
    */
-  private List<AntSpecies> fetchAntSpeciesData(Iterable<String> taxonNames) {
+  private List<AntImageUrl> fetchAntImageUrls(Iterable<String> taxonNames) {
     List<ListenableFuture<TaxaImagesJson>> futures = new ArrayList<>();
     for (String taxon : taxonNames) {
-      String url = "http://api.antweb.org/v3/taxaImages?shotType=h&taxonName=" + URLEncoder.encode(taxon);
+      String url = String.format(
+          "https://api.antweb.org/v3/taxaImages?shotType=%s&taxonName=%s",
+          parameters.photoType,
+          URLEncoder.encode(taxon));
       RequestFuture<TaxaImagesJson> future = RequestFuture.newFuture();
       GsonRequest<TaxaImagesJson> request = new GsonRequest<>(
           url, TaxaImagesJson.class, null, future, future);
@@ -157,20 +169,20 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
       return new ArrayList<>();
     }
 
-    List<AntSpecies> results = new ArrayList<>();
+    List<AntImageUrl> results = new ArrayList<>();
     for (TaxaImagesJson imagesJson : imagesJsonList) {
       Uri imageUrl = imagesJson.getUrl();
       if (imageUrl != null) {
-        results.add(new AntSpecies(imagesJson.getTaxonName(), imageUrl));
+        results.add(new AntImageUrl(imagesJson.getTaxonName(), imageUrl));
       }
     }
     return results;
   }
 
-  private ImmutableList<AntSpecies> fakeResults() {
-    ImmutableList.Builder<AntSpecies> resultBuilder = ImmutableList.builder();
+  private ImmutableList<AntImageUrl> fakeResults() {
+    ImmutableList.Builder<AntImageUrl> resultBuilder = ImmutableList.builder();
     for (int i = 0; i < parameters.maxSpecies; i++) {
-      resultBuilder.add(new AntSpecies("Ant #" + i, null));
+      resultBuilder.add(new AntImageUrl("Ant #" + i, null));
     }
     return resultBuilder.build();
   }

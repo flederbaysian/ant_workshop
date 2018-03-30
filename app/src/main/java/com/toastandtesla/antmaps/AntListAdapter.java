@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.google.common.collect.ImmutableList;
 import com.squareup.picasso.Picasso;
-import com.toastandtesla.antmaps.data.AntSpecies;
+import com.toastandtesla.antmaps.data.AntImageUrl;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
     }
   }
 
-  private ImmutableList<AntSpecies> antSpecies = ImmutableList.of();
+  private ImmutableList<AntImageUrl> antSpecies = ImmutableList.of();
   private final Picasso picasso;
 
   AntListAdapter(Picasso picasso) {
@@ -46,7 +46,7 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
 
   @Override
   public void onBindViewHolder(AntViewHolder holder, int position) {
-    AntSpecies species = antSpecies.get(position);
+    AntImageUrl species = antSpecies.get(position);
     // EXERCISE: Capitalize the species name
     holder.nameView.setText(species.getName());
     if (species.getImageUrl() != null) {
@@ -69,7 +69,7 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
     return antSpecies.size();
   }
 
-  void setAntSpecies(List<AntSpecies> species) {
+  void setAntSpecies(List<AntImageUrl> species) {
     if (!antSpecies.equals(species)) {
       this.antSpecies = ImmutableList.copyOf(species);
       notifyDataSetChanged();
