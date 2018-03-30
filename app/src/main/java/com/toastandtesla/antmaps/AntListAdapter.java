@@ -1,7 +1,6 @@
 package com.toastandtesla.antmaps;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,8 @@ import android.widget.TextView;
 import com.google.common.collect.ImmutableList;
 import com.squareup.picasso.Picasso;
 import com.toastandtesla.antmaps.data.AntSpecies;
+
+import java.util.List;
 
 /**
  * A RecyclerView adapter that can display a list of ant species. Each will have a picture and a
@@ -46,14 +47,14 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
   @Override
   public void onBindViewHolder(AntViewHolder holder, int position) {
     AntSpecies species = antSpecies.get(position);
-    holder.nameView.setText(species.name);
-    if (species.imageUrl != null) {
-      picasso.load(species.imageUrl)
+    holder.nameView.setText(species.getName());
+    if (species.getImageUrl() != null) {
+      picasso.load(species.getImageUrl())
           .placeholder(R.drawable.placeholder_drawable)
           .into(holder.imageView);
     } else {
-      picasso.load(species.imageResourceId)
-          .into(holder.imageView);
+      // Load a replacement image from resources
+      picasso.load(R.mipmap.ant).into(holder.imageView);
     }
   }
 
@@ -67,9 +68,9 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
     return antSpecies.size();
   }
 
-  void setAntSpecies(ImmutableList<AntSpecies> species) {
+  void setAntSpecies(List<AntSpecies> species) {
     if (!antSpecies.equals(species)) {
-      this.antSpecies = species;
+      this.antSpecies = ImmutableList.copyOf(species);
       notifyDataSetChanged();
     }
   }

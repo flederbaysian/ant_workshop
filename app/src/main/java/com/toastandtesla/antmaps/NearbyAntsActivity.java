@@ -8,12 +8,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.android.volley.toolbox.Volley;
-import com.google.common.collect.ImmutableList;
 import com.squareup.picasso.Picasso;
 import com.toastandtesla.antmaps.data.AntDataLoader;
 import com.toastandtesla.antmaps.data.AntSpecies;
 
-/** An activity which presents a list of nearby ant species. */
+import java.util.List;
+
+/** An activity which presents a list of nearby ant species (as long as you're in OIST). */
 public final class NearbyAntsActivity extends AppCompatActivity {
 
   private final AntDataLoaderCallbacks loaderCallbacks = new AntDataLoaderCallbacks();
@@ -25,6 +26,7 @@ public final class NearbyAntsActivity extends AppCompatActivity {
 
     setContentView(R.layout.activity_nearby_ants);
     RecyclerView antListView = findViewById(R.id.ant_list);
+
     antListAdapter = new AntListAdapter(Picasso.with(this));
     antListView.setAdapter(antListAdapter);
     antListView.setLayoutManager(new LinearLayoutManager(this));
@@ -32,30 +34,32 @@ public final class NearbyAntsActivity extends AppCompatActivity {
   }
 
   private void startLoadingAntData() {
-    Loader<ImmutableList<AntSpecies>> loader =
+    Loader<List<AntSpecies>> loader =
         getSupportLoaderManager().initLoader(0, null, loaderCallbacks);
     loader.forceLoad();
   }
 
   private final class AntDataLoaderCallbacks
-      implements LoaderManager.LoaderCallbacks<ImmutableList<AntSpecies>> {
+      implements LoaderManager.LoaderCallbacks<List<AntSpecies>> {
     @Override
-    public Loader<ImmutableList<AntSpecies>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<AntSpecies>> onCreateLoader(int id, Bundle args) {
       NearbyAntsActivity context = NearbyAntsActivity.this;
       AntDataLoader.Parameters parameters = new AntDataLoader.Parameters();
+
+      // Your coordinates - no GPS required! (if you're in OIST)
+      parameters.latitude = 26;
+      parameters.longitude = 128;
       parameters.maxSpecies = 12;
       parameters.radiusKm = 100;
-      parameters.fakeResults = true;
       return new AntDataLoader(context, Volley.newRequestQueue(context), parameters);
     }
 
     @Override
-    public void onLoadFinished(
-        Loader<ImmutableList<AntSpecies>> loader, ImmutableList<AntSpecies> data) {
+    public void onLoadFinished(Loader<List<AntSpecies>> loader, List<AntSpecies> data) {
       antListAdapter.setAntSpecies(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<ImmutableList<AntSpecies>> loader) {}
+    public void onLoaderReset(Loader<List<AntSpecies>> loader) {}
   }
 }

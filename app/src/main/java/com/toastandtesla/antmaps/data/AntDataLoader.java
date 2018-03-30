@@ -11,9 +11,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.toastandtesla.antmaps.R;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +23,27 @@ import java.util.concurrent.ExecutionException;
  * A loader which uses the AntWeb API to download a list of nearby ant species, each with
  * a list of photos.
  */
-public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecies>> {
+public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
+
+  /** An object with parameters that control the loader. */
+  public static final class Parameters {
+    public int maxSpecies = 10;
+    public float latitude;
+    public float longitude;
+    public int radiusKm = 2;
+    public boolean fakeResults = false;
+
+    static Parameters copy(Parameters parameters) {
+      Parameters result = new Parameters();
+      result.maxSpecies = parameters.maxSpecies;
+      result.latitude = parameters.latitude;
+      result.longitude = parameters.longitude;
+      result.radiusKm = parameters.radiusKm;
+      result.fakeResults = parameters.fakeResults;
+      return result;
+    }
+  }
+
   private static final String TAG = "AntDataLoader";
 
   private final RequestQueue requestQueue;
@@ -39,19 +59,22 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
   }
 
   @Override
-  public ImmutableList<AntSpecies> loadInBackground() {
+  public List<AntSpecies> loadInBackground() {
     if (parameters.fakeResults) {
       return fakeResults();
     }
-    SpecimensJson specimensJson = getSpecimensJson();
+    SpecimensJson specimensJson = fetchSpecimensJson();
     if (specimensJson == null) {
       return ImmutableList.of();
     }
-    Set<String> taxonNames = getTaxonNames(specimensJson, parameters.maxSpecies);
-    return getAntSpecies(taxonNames);
+    Set<String> taxonNames = extractTaxonNames(specimensJson, parameters.maxSpecies);
+
+    // TODO: Sort the species by name
+    return fetchAntSpeciesData(taxonNames);
   }
 
-  private SpecimensJson getSpecimensJson() {
+  /** Makes a network request to get data about all specimens within the search radius. */
+  private SpecimensJson fetchSpecimensJson() {
     String url = specimensUrl();
     RequestFuture<SpecimensJson> future = RequestFuture.newFuture();
     GsonRequest<SpecimensJson> request = new GsonRequest<>(
@@ -83,7 +106,8 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
         parameters.radiusKm);
   }
 
-  private Set<String> getTaxonNames(SpecimensJson specimens, int maxSize) {
+  /** Processes the specimens to get up to maxSize unique taxon names. */
+  private Set<String> extractTaxonNames(SpecimensJson specimens, int maxSize) {
     Set<String> taxonNames = new HashSet<>();
     for (SpecimensJson.SingleSpecimenJson specimen : specimens.specimens) {
       if (!taxonNames.contains(specimen.antwebTaxonName)) {
@@ -96,59 +120,46 @@ public final class AntDataLoader extends AsyncTaskLoader<ImmutableList<AntSpecie
     return taxonNames;
   }
 
-  private ImmutableList<AntSpecies> getAntSpecies(Set<String> taxonNames) {
-    ImmutableList.Builder<ListenableFuture<TaxaImagesJson>> futuresBuilder = ImmutableList.builder();
+  /**
+   * Makes several network requests to get image URLs for the given taxonNames. The returned
+   * species will be in the same order as passed into this method, but only species where an image
+   * was found will be returned.
+   */
+  private List<AntSpecies> fetchAntSpeciesData(Iterable<String> taxonNames) {
+    List<ListenableFuture<TaxaImagesJson>> futures = new ArrayList<>();
     for (String taxon : taxonNames) {
       String url = "http://api.antweb.org/v3/taxaImages?shotType=h&taxonName=" + URLEncoder.encode(taxon);
       RequestFuture<TaxaImagesJson> future = RequestFuture.newFuture();
       GsonRequest<TaxaImagesJson> request = new GsonRequest<>(
           url, TaxaImagesJson.class, null, future, future);
       requestQueue.add(request);
-      futuresBuilder.add(JdkFutureAdapters.listenInPoolThread(future));
+      futures.add(JdkFutureAdapters.listenInPoolThread(future));
     }
     List<TaxaImagesJson> imagesJsonList;
     try {
-      imagesJsonList = Futures.allAsList(futuresBuilder.build()).get();
+      imagesJsonList = Futures.allAsList(futures).get();
     } catch (InterruptedException e) {
-      return ImmutableList.of();
+      return new ArrayList<>();
     } catch (ExecutionException e) {
       Log.w(TAG, "Failed to load taxa image URLs", e);
-      return ImmutableList.of();
+      return new ArrayList<>();
     }
 
-    ImmutableList.Builder<AntSpecies> resultBuilder = ImmutableList.builder();
+    List<AntSpecies> results = new ArrayList<>();
     for (TaxaImagesJson imagesJson : imagesJsonList) {
       Uri imageUrl = imagesJson.getUrl();
       if (imageUrl != null) {
-        resultBuilder.add(new AntSpecies(imagesJson.getTaxonName(), imageUrl, 0));
+        results.add(new AntSpecies(imagesJson.getTaxonName(), imageUrl));
       }
     }
-    return resultBuilder.build();
+    return results;
   }
 
   private ImmutableList<AntSpecies> fakeResults() {
     ImmutableList.Builder<AntSpecies> resultBuilder = ImmutableList.builder();
     for (int i = 0; i < parameters.maxSpecies; i++) {
-      resultBuilder.add(new AntSpecies("Ant #" + i, null, R.mipmap.ant));
+      resultBuilder.add(new AntSpecies("Ant #" + i, null));
     }
     return resultBuilder.build();
-  }
-
-  public static final class Parameters {
-    public int maxSpecies = 10;
-    public float latitude = 52;
-    public float longitude = 0;
-    public int radiusKm = 2;
-    public boolean fakeResults = false;
-
-    static Parameters copy(Parameters parameters) {
-      Parameters result = new Parameters();
-      result.maxSpecies = parameters.maxSpecies;
-      result.latitude = parameters.latitude;
-      result.longitude = parameters.longitude;
-      result.radiusKm = parameters.radiusKm;
-      result.fakeResults = parameters.fakeResults;
-      return result;
-    }
   }
 }
