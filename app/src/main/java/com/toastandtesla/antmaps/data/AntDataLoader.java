@@ -69,7 +69,7 @@ public final class AntDataLoader extends AsyncTaskLoader<List<AntSpecies>> {
     }
     Set<String> taxonNames = extractTaxonNames(specimensJson, parameters.maxSpecies);
 
-    // TODO: Sort the species by name
+    // EXERCISE: Sort the species by name
     return fetchAntSpeciesData(taxonNames);
   }
 
