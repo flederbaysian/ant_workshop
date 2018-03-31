@@ -1,16 +1,14 @@
 package com.toastandtesla.antmaps.data;
 
-import android.net.Uri;
-
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import android.net.Uri;
+import javax.annotation.Nullable;
+
 /** A data object with information about an ant species. */
-@Immutable
 public final class AntImageUrl {
 
+  // The name of the ant species
   private final String name;
   @Nullable private final Uri imageUrl;
 
