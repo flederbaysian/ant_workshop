@@ -186,7 +186,7 @@ public final class AntImageUrlLoader extends AsyncTaskLoader<List<AntImageUrl>> 
   private ImmutableList<AntImageUrl> fakeResults() {
     ImmutableList.Builder<AntImageUrl> resultBuilder = ImmutableList.builder();
     for (int i = 0; i < parameters.maxSpecies; i++) {
-      resultBuilder.add(new AntImageUrl("Ant #" + i, null));
+      resultBuilder.add(new AntImageUrl("antum falsum #" + i, null));
     }
     return resultBuilder.build();
   }
