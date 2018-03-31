@@ -88,10 +88,11 @@ public final class AntImageUrlLoader extends AsyncTaskLoader<List<AntImageUrl>> 
     if (specimensJson == null) {
       return ImmutableList.of();
     }
-    Set<String> taxonNames = extractTaxonNames(specimensJson, parameters.maxSpecies);
+    List<String> taxonNames = extractTaxonNames(specimensJson, parameters.maxSpecies);
 
-    // EXERCISE: Sort the species by name
-    return fetchAntImageUrls(taxonNames);
+    // EXERCISE: Sort the ant species by name
+    List<AntImageUrl> antImageUrls = fetchAntImageUrls(taxonNames);
+    return antImageUrls;
   }
 
   /** Makes a network request to get data about all specimens within the search radius. */
@@ -128,7 +129,7 @@ public final class AntImageUrlLoader extends AsyncTaskLoader<List<AntImageUrl>> 
   }
 
   /** Processes the specimens to get up to maxSize unique taxon names. */
-  private Set<String> extractTaxonNames(SpecimensJson specimens, int maxSize) {
+  private List<String> extractTaxonNames(SpecimensJson specimens, int maxSize) {
     Set<String> taxonNames = new HashSet<>();
     for (SpecimensJson.SingleSpecimenJson specimen : specimens.specimens) {
       if (!taxonNames.contains(specimen.antwebTaxonName)) {
@@ -138,13 +139,16 @@ public final class AntImageUrlLoader extends AsyncTaskLoader<List<AntImageUrl>> 
         }
       }
     }
-    return taxonNames;
+    // Note: in real code you'd probably just return the Set, but this makes the workshop exercises
+    // a bit easier.
+    return new ArrayList<>(taxonNames);
   }
 
   /**
-   * Makes several network requests to get image URLs for the given taxonNames. The returned
-   * species will be in the same order as passed into this method, but only species where an image
-   * was found will be returned.
+   * Makes several network requests to get image URLs for the given taxonNames.
+   *
+   * <p>The returned species will be in the same order as passed into this method, but only species
+   * where an image was found will be returned.
    */
   private List<AntImageUrl> fetchAntImageUrls(Iterable<String> taxonNames) {
     List<ListenableFuture<TaxaImagesJson>> futures = new ArrayList<>();
