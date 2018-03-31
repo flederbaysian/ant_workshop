@@ -48,7 +48,11 @@ final class AntListAdapter extends RecyclerView.Adapter<AntListAdapter.AntViewHo
   public void onBindViewHolder(AntViewHolder holder, int position) {
     AntImageUrl species = antSpecies.get(position);
     // EXERCISE: Capitalize the species name
-    holder.nameView.setText(species.getName());
+    String name = species.getName();
+
+    holder.nameView.setText(name);
+
+    // Use Picasso to download the image of the ant
     if (species.getImageUrl() != null) {
       picasso.load(species.getImageUrl())
           .placeholder(R.drawable.placeholder_drawable)
