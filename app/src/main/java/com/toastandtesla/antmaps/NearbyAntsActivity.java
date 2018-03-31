@@ -1,5 +1,6 @@
 package com.toastandtesla.antmaps;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -28,26 +29,54 @@ public final class NearbyAntsActivity extends AppCompatActivity {
     antListAdapter = new AntListAdapter(Picasso.with(this));
     antListView.setAdapter(antListAdapter);
     antListView.setLayoutManager(new LinearLayoutManager(this));
-    startLoadingAntData();
   }
 
-  private void startLoadingAntData() {
+  @Override
+  protected void onStart() {
+    super.onStart();
+    Bundle parametersBundle;
+    if (activityWasStartedFromLauncher()) {
+      AntImageUrlLoader.Parameters parameters = createLoaderParameters();
+      parametersBundle = parameters.toBundle();
+    } else {
+      // Read the parameters from the intent passed to this activity.
+      parametersBundle = getIntent().getBundleExtra("parameters");
+      if (parametersBundle == null) {
+        parametersBundle = createLoaderParameters().toBundle();
+      }
+    }
+    startLoadingAntData(parametersBundle);
+  }
+
+  private static AntImageUrlLoader.Parameters createLoaderParameters() {
+    AntImageUrlLoader.Parameters parameters = new AntImageUrlLoader.Parameters();
+    // Your coordinates - no GPS required! (if you're in OIST)
+    parameters.latitude = 26;
+    parameters.longitude = 128;
+    parameters.maxSpecies = 12;
+    parameters.radiusKm = 100;
+    parameters.fakeResults = true;
+    return parameters;
+  }
+
+  /** Returns true if this activity was started by the user tapping the icon in the launcher. */
+  private boolean activityWasStartedFromLauncher() {
+    return Intent.ACTION_MAIN.equals(getIntent().getAction());
+  }
+
+  private void startLoadingAntData(Bundle parametersBundle) {
     Loader<List<AntImageUrl>> loader =
-        getSupportLoaderManager().initLoader(0, getIntent().getExtras(), loaderCallbacks);
+        getSupportLoaderManager().initLoader(0, parametersBundle, loaderCallbacks);
     loader.forceLoad();
   }
 
   private final class AntDataLoaderCallbacks
       implements LoaderManager.LoaderCallbacks<List<AntImageUrl>> {
+
     @Override
     public Loader<List<AntImageUrl>> onCreateLoader(int id, Bundle args) {
       NearbyAntsActivity context = NearbyAntsActivity.this;
-      AntImageUrlLoader.Parameters parameters = new AntImageUrlLoader.Parameters();
-      // Your coordinates - no GPS required! (if you're in OIST)
-      parameters.latitude = 26;
-      parameters.longitude = 128;
-      parameters.maxSpecies = 12;
-      parameters.radiusKm = 100;
+      AntImageUrlLoader.Parameters parameters = AntImageUrlLoader.Parameters.fromBundle(args);
       return new AntImageUrlLoader(context, RequestQueueSingleton.getInstance(context), parameters);
     }
 

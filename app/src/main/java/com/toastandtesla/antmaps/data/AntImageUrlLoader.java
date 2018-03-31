@@ -53,6 +53,17 @@ public final class AntImageUrlLoader extends AsyncTaskLoader<List<AntImageUrl>> 
       return result;
     }
 
+    /** Converts a Parameters object to a Bundle. */
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt("maxSpecies", maxSpecies);
+      bundle.putFloat("latitude", latitude);
+      bundle.putFloat("longitude", longitude);
+      bundle.putInt("radiusKm", radiusKm);
+      bundle.putBoolean("fakeResults", fakeResults);
+      return bundle;
+    }
+
     /** Parse a Bundle into a Parameters object. */
     public static Parameters fromBundle(Bundle bundle) {
       Parameters result = new Parameters();
@@ -62,6 +73,18 @@ public final class AntImageUrlLoader extends AsyncTaskLoader<List<AntImageUrl>> 
       result.radiusKm = bundle.getInt("radiusKm", result.radiusKm);
       result.fakeResults = bundle.getBoolean("fakeResults", result.fakeResults);
       return result;
+    }
+
+    @Override
+    public String toString() {
+      return "Parameters{" +
+          "maxSpecies=" + maxSpecies +
+          ", latitude=" + latitude +
+          ", longitude=" + longitude +
+          ", radiusKm=" + radiusKm +
+          ", photoType='" + photoType + '\'' +
+          ", fakeResults=" + fakeResults +
+          '}';
     }
   }
 
