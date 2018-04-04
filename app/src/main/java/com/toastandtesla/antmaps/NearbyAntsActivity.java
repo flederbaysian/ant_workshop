@@ -55,7 +55,6 @@ public final class NearbyAntsActivity extends AppCompatActivity {
     parameters.longitude = 128;
     parameters.maxSpecies = 12;
     parameters.radiusKm = 100;
-    parameters.fakeResults = true;
     return parameters;
   }
 
