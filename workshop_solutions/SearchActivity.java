@@ -45,7 +45,6 @@ public class SearchActivity extends AppCompatActivity {
     parameters.longitude = Float.valueOf(editLongitude.getText().toString());
     parameters.radiusKm = Integer.valueOf(editRadius.getText().toString());
     parameters.maxSpecies = Integer.valueOf(editMaxSpecies.getText().toString());
-    parameters.fakeResults = true;
 
     Intent intent = new Intent(this, NearbyAntsActivity.class);
     intent.putExtra("parameters", parameters.toBundle());
